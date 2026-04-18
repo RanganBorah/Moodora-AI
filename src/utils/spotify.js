@@ -80,6 +80,40 @@ export function activateSpotifyElement() {
   }
 }
 
+export async function getAvailableDevices() {
+  const token = getSpotifyToken();
+
+  const response = await fetch("https://api.spotify.com/v1/me/player/devices", {
+    method: "GET",
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+
+  const data = await response.json().catch(() => ({}));
+  return {
+    ok: response.ok,
+    status: response.status,
+    data,
+  };
+}
+
+export async function waitForDevice(deviceId, retries = 12, delayMs = 1000) {
+  for (let i = 0; i < retries; i += 1) {
+    const result = await getAvailableDevices();
+    console.log("Available devices check:", result);
+
+    const found = result.data?.devices?.find((d) => d.id === deviceId);
+    if (found) {
+      return true;
+    }
+
+    await new Promise((resolve) => setTimeout(resolve, delayMs));
+  }
+
+  return false;
+}
+
 export async function transferPlayback(deviceId) {
   const token = getSpotifyToken();
 
@@ -114,12 +148,6 @@ export async function playPlaylist(deviceId, playlistUri) {
   );
 }
 
-export function disconnectSpotifyPlayer() {
-  if (playerInstance) {
-    playerInstance.disconnect();
-    playerInstance = null;
-  }
-}
 export async function togglePlayback() {
   if (playerInstance) {
     return playerInstance.togglePlay();
@@ -135,5 +163,12 @@ export async function nextTrack() {
 export async function previousTrack() {
   if (playerInstance) {
     return playerInstance.previousTrack();
+  }
+}
+
+export function disconnectSpotifyPlayer() {
+  if (playerInstance) {
+    playerInstance.disconnect();
+    playerInstance = null;
   }
 }

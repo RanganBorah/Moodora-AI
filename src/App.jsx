@@ -25,6 +25,7 @@ import {
   togglePlayback,
   nextTrack,
   previousTrack,
+  waitForDevice,
 } from "./utils/spotify";
 import "./index.css";
 
@@ -250,6 +251,13 @@ function App() {
       }
 
       activateSpotifyElement();
+      setSpotifyStatus("Preparing Spotify device...");
+      const deviceReady = await waitForDevice(deviceId, 12, 1000);
+      if (!deviceReady) {
+        setSpotifyStatus("Spotify device not found yet");
+        return;
+      }
+
 
       const transferResponse = await transferPlayback(deviceId);
       console.log("Transfer playback status:", transferResponse.status);
@@ -257,11 +265,13 @@ function App() {
       if (!transferResponse.ok && transferResponse.status !== 204) {
         const transferError = await transferResponse.json().catch(() => ({}));
         console.log("Transfer playback error:", transferError);
-        setSpotifyStatus("Playback Failed");
+        setSpotifyStatus(
+          `Transfer Failed: ${transferError?.error?.reason || transferResponse.status}`
+        );
         return;
       }
 
-      await new Promise((resolve) => setTimeout(resolve, 1800));
+      await new Promise((resolve) => setTimeout(resolve, 2000));
 
       const playResponse = await playPlaylist(deviceId, activeMoodData.uri);
       console.log("Play response status:", playResponse.status);
@@ -275,9 +285,15 @@ function App() {
       }
     } catch (error) {
       console.error("Play music error:", error);
-      setSpotifyStatus("Playback Failed");
+      setSpotifyStatus(
+        `Playback Failed: ${errorData?.error?.reason || playResponse.status}`
+      );
     }
+  } catch (error) {
+    console.error("Play music error:", error);
+    setSpotifyStatus("Playback Failed");
   }
+}
 
   async function handleTogglePlayback() {
     try {
