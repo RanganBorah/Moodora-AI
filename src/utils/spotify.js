@@ -120,3 +120,20 @@ export function disconnectSpotifyPlayer() {
     playerInstance = null;
   }
 }
+export async function togglePlayback() {
+  if (playerInstance) {
+    return playerInstance.togglePlay();
+  }
+}
+
+export async function nextTrack() {
+  if (playerInstance) {
+    return playerInstance.nextTrack();
+  }
+}
+
+export async function previousTrack() {
+  if (playerInstance) {
+    return playerInstance.previousTrack();
+  }
+}

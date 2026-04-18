@@ -1,5 +1,14 @@
 import { useEffect, useRef, useState } from "react";
-import { FaGithub, FaLinkedin, FaEnvelope, FaGlobe } from "react-icons/fa";
+import {
+  FaGithub,
+  FaLinkedin,
+  FaEnvelope,
+  FaGlobe,
+  FaPlay,
+  FaPause,
+  FaStepBackward,
+  FaStepForward,
+} from "react-icons/fa";
 import CameraBox from "./components/CameraBox";
 import SpotifyButton from "./components/SpotifyButton";
 import {
@@ -13,6 +22,9 @@ import {
   playPlaylist,
   disconnectSpotifyPlayer,
   activateSpotifyElement,
+  togglePlayback,
+  nextTrack,
+  previousTrack,
 } from "./utils/spotify";
 import "./index.css";
 
@@ -21,6 +33,7 @@ function App() {
   const spotifyHandledRef = useRef(false);
 
   const [mood, setMood] = useState("Loading model...");
+  const [manualMood, setManualMood] = useState(null);
   const [debugText, setDebugText] = useState("Waiting for camera...");
   const [spotifyStatus, setSpotifyStatus] = useState("Not Connected");
   const [deviceId, setDeviceId] = useState("");
@@ -77,7 +90,9 @@ function App() {
     },
   };
 
-  const activeMoodData = moodData[mood] || moodData.Neutral;
+  const selectableMoods = ["Happy", "Neutral", "Angry", "Surprised"];
+  const activeMood = manualMood || mood;
+  const activeMoodData = moodData[activeMood] || moodData.Neutral;
 
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
@@ -144,7 +159,9 @@ function App() {
             return;
           }
 
-          setMood(result.mood || "Neutral");
+          if (!manualMood) {
+            setMood(result.mood || "Neutral");
+          }
 
           if (result.topScores && result.topScores.length > 0) {
             const text = result.topScores
@@ -171,7 +188,7 @@ function App() {
     return () => {
       if (intervalId) clearInterval(intervalId);
     };
-  }, []);
+  }, [manualMood]);
 
   useEffect(() => {
     let mounted = true;
@@ -250,7 +267,7 @@ function App() {
       console.log("Play response status:", playResponse.status);
 
       if (playResponse.ok || playResponse.status === 204) {
-        setSpotifyStatus(`Playing for mood: ${mood}`);
+        setSpotifyStatus(`Playing for mood: ${activeMood}`);
       } else {
         const errorData = await playResponse.json().catch(() => ({}));
         console.log("Play error:", errorData);
@@ -259,6 +276,31 @@ function App() {
     } catch (error) {
       console.error("Play music error:", error);
       setSpotifyStatus("Playback Failed");
+    }
+  }
+
+  async function handleTogglePlayback() {
+    try {
+      activateSpotifyElement();
+      await togglePlayback();
+    } catch (error) {
+      console.error("Toggle playback error:", error);
+    }
+  }
+
+  async function handleNextTrack() {
+    try {
+      await nextTrack();
+    } catch (error) {
+      console.error("Next track error:", error);
+    }
+  }
+
+  async function handlePreviousTrack() {
+    try {
+      await previousTrack();
+    } catch (error) {
+      console.error("Previous track error:", error);
     }
   }
 
@@ -327,7 +369,11 @@ function App() {
           </div>
 
           <div className="portfolio-note">
-            Portfolio Project by <strong>Rangan</strong>
+             Portfolio Project by <strong>Rangan Pratik Borah</strong>
+             <br />
+             <span className="portfolio-subtitle">
+                B. Tech Electronics and Communication Engineering Student
+             </span>
 
             <div className="icon-links">
               <a
@@ -449,13 +495,38 @@ function App() {
             <div className="detected-label">Detected Mood</div>
 
             <div
-              className={`detected-mood mood-${mood
-                
+              className={`detected-mood mood-${activeMood
                 .toLowerCase()
                 .replace(/\s+/g, "-")
                 .replace(/[.]/g, "")}`}
             >
-              {mood}
+              {activeMood}
+              {manualMood ? " (Manual)" : ""}
+            </div>
+
+            <div className="manual-mood-section">
+              <div className="manual-mood-title">Choose mood manually</div>
+              <div className="manual-mood-buttons">
+                {selectableMoods.map((item) => (
+                  <button
+                    key={item}
+                    type="button"
+                    className={`manual-mood-btn ${
+                      manualMood === item ? "active" : ""
+                    }`}
+                    onClick={() => setManualMood(item)}
+                  >
+                    {item}
+                  </button>
+                ))}
+                <button
+                  type="button"
+                  className={`manual-mood-btn ${manualMood === null ? "active" : ""}`}
+                  onClick={() => setManualMood(null)}
+                >
+                  Auto
+                </button>
+              </div>
             </div>
 
             <div className="debug-line">{debugText}</div>
@@ -466,17 +537,15 @@ function App() {
 
             <button
               className="analyze-btn"
-              onClick={() =>
-                setDebugText("Analyzing current face expression...")
-              }
+              onClick={() => setManualMood(null)}
             >
-              Analyze Again
+              Switch Back to Auto Detection
             </button>
           </div>
         </div>
 
         <div className="music-grid">
-          <div className="music-card">
+          <div className="music-card spotify-style-card">
             <h3>Now Playing</h3>
 
             {currentTrack?.image ? (
@@ -504,16 +573,37 @@ function App() {
               <span>{formatTime(currentTrack?.durationMs || 0)}</span>
             </div>
 
-            <div className="music-controls">
-              <span>◁</span>
-              <span className="play-circle">
-                {currentTrack?.paused ? "▷" : "❚❚"}
-              </span>
-              <span>▷</span>
+            <div className="music-controls polished-controls">
+              <button
+                className="control-btn"
+                onClick={handlePreviousTrack}
+                aria-label="Previous"
+                type="button"
+              >
+                <FaStepBackward />
+              </button>
+
+              <button
+                className="play-circle polished-play-circle"
+                onClick={handleTogglePlayback}
+                aria-label={currentTrack?.paused ? "Play" : "Pause"}
+                type="button"
+              >
+                {currentTrack?.paused ? <FaPlay /> : <FaPause />}
+              </button>
+
+              <button
+                className="control-btn"
+                onClick={handleNextTrack}
+                aria-label="Next"
+                type="button"
+              >
+                <FaStepForward />
+              </button>
             </div>
           </div>
 
-          <div className="music-card">
+          <div className="music-card spotify-style-card">
             <h3>Recommended Playlist</h3>
             <div className="music-placeholder">♫</div>
             <h4>{activeMoodData.title}</h4>
