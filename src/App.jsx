@@ -450,8 +450,10 @@ function App() {
 
             <div
               className={`detected-mood mood-${mood
+                
                 .toLowerCase()
-                .replace(/\s+/g, "-")}`}
+                .replace(/\s+/g, "-")
+                .replace(/[.]/g, "")}`}
             >
               {mood}
             </div>

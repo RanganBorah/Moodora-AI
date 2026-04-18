@@ -387,8 +387,8 @@ button {
 }
 
 .mood-neutral,
-.mood-loading-model...,
-.mood-model-ready {
+.mood-model-ready,
+.mood-loading-model {
   color: #e5e7eb;
 }
 
