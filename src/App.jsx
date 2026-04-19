@@ -281,19 +281,15 @@ function App() {
       } else {
         const errorData = await playResponse.json().catch(() => ({}));
         console.log("Play error:", errorData);
-        setSpotifyStatus("Playback Failed");
+        setSpotifyStatus(
+          `Playback Failed: ${errorData?.error?.reason || playResponse.status}`
+        );
       }
     } catch (error) {
       console.error("Play music error:", error);
-      setSpotifyStatus(
-        `Playback Failed: ${errorData?.error?.reason || playResponse.status}`
-      );
+      setSpotifyStatus("Playback Failed");
     }
-  } catch (error) {
-    console.error("Play music error:", error);
-    setSpotifyStatus("Playback Failed");
   }
-}
 
   async function handleTogglePlayback() {
     try {
