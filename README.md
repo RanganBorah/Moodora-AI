@@ -1,16 +1,57 @@
-# React + Vite
+# Moodora AI
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Moodora AI is a real-time emotion-based music recommendation web application that detects facial expressions and plays music according to the user’s mood using Spotify.
 
-Currently, two official plugins are available:
+---
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+## Live Demo
 
-## React Compiler
+[https://moodora-ai.vercel.app/](https://moodora-ai.vercel.app/)
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+---
 
-## Expanding the ESLint configuration
+## Features
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+* Real-time face detection using MediaPipe
+* Emotion recognition from facial expressions
+* Automatic music playback based on detected mood
+* Manual mood selection option
+* Spotify Web Playback SDK integration
+* Play, pause, next, and previous controls
+* Responsive and modern UI
+
+---
+
+## Tech Stack
+
+Frontend:
+
+* React (Vite)
+* CSS
+* JavaScript
+
+AI / ML:
+
+* MediaPipe Face Landmarker
+
+Music Integration:
+
+* Spotify Web API
+* Spotify Web Playback SDK
+
+Deployment:
+
+* Vercel
+
+---
+
+## Author
+
+Rangan Pratik Borah
+B.Tech Electronics and Communication Engineering Student
+
+---
+
+## License
+
+This project is for educational and portfolio purposes.
